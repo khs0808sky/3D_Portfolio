@@ -52,10 +52,47 @@ APortfolio_3DCharacter::APortfolio_3DCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	//어빌리티 시스템 컴포넌트 생성해서 추가
+	AbilitySystemComponent =
+		CreateDefaultSubobject
+		<UMyAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+
+	//온라인 사용 여부 true가 온라인
+	AbilitySystemComponent->SetIsReplicated(true);
+
+	//능력치 변경시 이벤트 호출 여부
+	AbilitySystemComponent->SetReplicationMode(
+		EGameplayEffectReplicationMode::Mixed);
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+
+void APortfolio_3DCharacter::BeginPlay()
+{
+	Super::BeginPlay(); //부모한번
+
+	//생성자에서 생성 했음.
+	if (IsValid(AbilitySystemComponent))
+	{
+		//데이터 에셋을 에디터에서 넣은걸 여기서 UMyAttributeSet타입으로
+		AttributeSetVar = AbilitySystemComponent->GetSet<UMyAttributeSet>();
+		if (AttributeSetVar != nullptr)
+		{
+			//델리게이트로 HP 변경시 원하는 함수 호출 가능하도록
+			const_cast<UMyAttributeSet*>(AttributeSetVar)->HealthChaneDelegate.AddDynamic(this, &APortfolio_3DCharacter::OnHealthChangeNative);
+
+			InitializeAttribute();
+			AddStartupEffects();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s()Missing AbilitySystemComponent."),
+			*FString(__FUNCTION__));//호출한 함수 이름으로에러 메시지 출력
+	}
+}
 
 void APortfolio_3DCharacter::NotifyControllerChanged()
 {
@@ -89,6 +126,207 @@ void APortfolio_3DCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+UMyAbilitySystemComponent* APortfolio_3DCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+void APortfolio_3DCharacter::ChangeAbilityLevelWithTags(FGameplayTagContainer TagContainer, int32 Level)
+{
+	//여러개 삭제
+	TArray<struct FGameplayAbilitySpec*>  MatchingAbilities;
+
+	//현재 가지고있는 태그를 비교해서 매개변수로 넣어준 컨테이너와 일치하는게 있으면 가져옴
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(
+		TagContainer, MatchingAbilities, true);
+
+	//돌아가면서 안에있는 레벨 변경
+	for (FGameplayAbilitySpec* spec : MatchingAbilities)
+	{
+		spec->Level = Level;
+	}
+}
+
+void APortfolio_3DCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (IsValid(AbilitySystemComponent))
+	{
+		//어빌리티 시스템에서 해당 시스템을 사용하는 액터를 불러올수 있도록 전달.
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		InitalizeAbilityMulti(InitialAbilities, 1);//에디터에서 설정한 스킬, 전부 레벨 1로
+	}
+}
+void APortfolio_3DCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	//서버에서도 알맞은 엑터를 쓸려면 여기서도 해야됨
+	if (IsValid(AbilitySystemComponent))
+	{
+		//어빌리티 시스템에서 해당 시스템을 사용하는 액터를 불러올수 있도록 전달.
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+}
+
+void APortfolio_3DCharacter::InitializeAttribute()
+{
+	if (!IsValid(AbilitySystemComponent))
+		return;
+	if (!IsValid(DefaultAttributes))
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s()Missing DefaultAttributes."),
+			*FString(__FUNCTION__));//호출한 함수 이름으로에러 메시지 출력
+		return;
+	}
+
+	//이펙트 핸들 생성
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);//어떤 놈에게 적용할지
+
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 0, EffectContext);
+
+	if (NewHandle.IsValid())
+	{
+		AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
+	}
+}
+
+void APortfolio_3DCharacter::AddStartupEffects()
+{
+	if (!IsValid(AbilitySystemComponent) ||
+		GetLocalRole() != ROLE_Authority ||
+		AbilitySystemComponent->StartUpEffectApplied)
+		return;
+
+	//이펙트 핸들 생성
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);//어떤 놈에게 적용할지
+
+	for (TSubclassOf<class UGameplayEffect> GameplayEffect : StartUpEffects)
+	{
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 0, EffectContext);
+		if (NewHandle.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent);
+		}
+	}
+	AbilitySystemComponent->StartUpEffectApplied = true;
+}
+
+void APortfolio_3DCharacter::InitalizeAbility(
+	TSubclassOf<class UGameplayAbility> AbilityToGet, int32 AbilityLevel)
+{
+	//온라인 상태에서 서버일때만 어빌리티 추가
+	//서버 아니면 하나마나 의미없음.
+	if (HasAuthority())
+	{
+		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityToGet, AbilityLevel));
+	}
+}
+
+void APortfolio_3DCharacter::InitalizeAbilityMulti(
+	TArray<TSubclassOf<class UGameplayAbility>> AbilityToAcquire, int32 AbilityLevel)
+{
+	if (HasAuthority())
+	{	//돌면서 다추가
+		for (TSubclassOf<class UGameplayAbility> AbilityItem : AbilityToAcquire)
+		{
+			InitalizeAbility(AbilityItem, AbilityLevel);
+		}
+	}
+}
+
+void APortfolio_3DCharacter::RemoveAbilityWithTags(FGameplayTagContainer TagContainer)
+{
+	//여러개 삭제
+	TArray<struct FGameplayAbilitySpec*>  MatchingAbilities;
+
+	//현재 가지고있는 태그를 비교해서 매개변수로 넣어준 컨테이너와 일치하는게 있으면 가져옴
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, MatchingAbilities, true);
+
+	//돌아가면서 삭제
+	for (FGameplayAbilitySpec* spec : MatchingAbilities)
+	{
+		AbilitySystemComponent->ClearAbility(spec->Handle);
+	}
+}
+
+void APortfolio_3DCharacter::CancelAbilityWithTags(FGameplayTagContainer WithTag, FGameplayTagContainer WithoutTag)
+{
+	AbilitySystemComponent->CancelAbilities(&WithTag, &WithoutTag);
+}
+
+void APortfolio_3DCharacter::AddLooseGamePlayTag(FGameplayTag TagToAdd)
+{
+	AbilitySystemComponent->AddLooseGameplayTag(TagToAdd);
+	AbilitySystemComponent->SetTagMapCount(TagToAdd, 1);
+}
+
+void APortfolio_3DCharacter::RemoveLooseGamePlayTag(FGameplayTag TagToRemove)
+{
+	AbilitySystemComponent->RemoveLooseGameplayTag(TagToRemove);
+}
+
+void APortfolio_3DCharacter::OnHealthChangeNative(float Health, int32 StackCount)
+{
+	//BlueprintImplementableEvent함수라 여기서 부르면 블루프린트에서 불러짐.
+	OnHealthChange(Health, StackCount);
+	if (Health <= 0)
+	{
+		//죽음.
+		Die();
+	}
+
+}
+void APortfolio_3DCharacter::HealthValues(float& Health, float& MaxHealth)
+{
+	if (IsValid(AttributeSetVar))
+	{
+		Health = AttributeSetVar->GetHealth();
+		MaxHealth = 1000.f; //임시, 나중에 추가해야됨.
+	}
+}
+
+float APortfolio_3DCharacter::GetHealth() const
+{
+	if (IsValid(AttributeSetVar))
+		return AttributeSetVar->GetHealth();
+	else
+		return 0.f;
+}
+
+float APortfolio_3DCharacter::GetMaxHealth() const
+{
+	return 1000.f; //임시, 나중에 추가해야됨.
+}
+
+void APortfolio_3DCharacter::Die()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCharacterMovement()->GravityScale = 0;
+	GetCharacterMovement()->Velocity = FVector(0);
+
+	if (IsValid(AbilitySystemComponent))
+	{
+		//실행중인 어빌리티 다 취소
+		AbilitySystemComponent->CancelAbilities();
+
+		//Die태그를 캐릭터에 붙힌다.
+		FGameplayTag DieEffectTag = FGameplayTag::RequestGameplayTag(FName("Die"));
+
+		FGameplayTagContainer gameplayTag{ DieEffectTag };
+
+		//Die 태그인 어빌리티가 있으면 그거 실행
+		bool IsSuccess = AbilitySystemComponent->TryActivateAbilitiesByTag(gameplayTag);
+		if (IsSuccess == false) //그게 없으면 우리가 태그만 넣어줌
+		{
+			AbilitySystemComponent->AddLooseGameplayTag(DieEffectTag);
+			FinishDying();
+		}
 	}
 }
 

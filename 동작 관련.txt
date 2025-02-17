@@ -1,0 +1,21 @@
+player는 평소에 ReadyToAction상태가 true상태
+
+
+<기본공격 3타>
+- Attack_PrimaryA_Montage_Edit (첫번째 기본공격)
+
+첫프레임(AN_StartAction)에서 player의 ReadyToAction를 false, CanCombo를 false로 설정
+
+공격부분(AN_TagSend)에서 EventTag를 Attack으로 설정
+
+정해진 구간(ANS_Combo)안에 '왼쪽클릭'을 하면 player의 CanCombo상태를 true로 설정
+
+공격이 끝난 부분(AN_NextCombo)에서 player의 CanCombo상태가 true면 다음 몽타주를 재생
+
+마지막부분(AN_EndAction)에서 player의 ReadyToAction를 true, CanCombo를 false로 설정
+
+
+
+
+##############
+1. playercharacter 클래스에 CanCombo라는 bool 변수가 false로 초기화되어있다. 2. AnimNotifyState를 상속받은 클래스의 Received_NotifyBegin부분에서 CanCombo변수를 true로 설정했다. 3. AnimNotifyState를 상속받은 클래스의 Received_NotifyTick부분에서 PrintString으로 CanCombo를 호출해보면 true가 정상적으로 나온다. 4. playercharacter 클래스의 tick함수에서는 true와 false가 각각 한번씩 번갈아가며 출력된다. 5. 번갈아가며 출력되지 않고 true로 쭉 출력되게 해야한다.

@@ -25,3 +25,8 @@ SetUseControllerRotationYaw -> false
 
 
 ##############
+해야할것
+WASD + Shift를 누를때 카메라기준으로 캐릭터가 회전하는지
+
+락온모드 on off모드
+

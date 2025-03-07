@@ -35,6 +35,19 @@ public:
 	//현재 체력 변경시 호출할 함수 델리게이트
 	FAttributeChangeDelegate HealthChaneDelegate;
 
+	//########################################################################################
+	UFUNCTION()
+	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
+
+	//Health 값이 변경될때 ReplicatedUsing속성에 넣어준 함수 실행
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxHealth)
+	FGameplayAttributeData MaxHealth;
+	ATTRIBUTE_ACCESSORS(UMyAttributeSet, MaxHealth); //체력관련 함수 다만들어줌
+
+	//현재 체력 변경시 호출할 함수 델리게이트
+	FAttributeChangeDelegate MaxHealthChaneDelegate;
+
+	//########################################################################################
 	//델리게이트랑 세트, 이거 있어야 값 변경시 호출 가능
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;

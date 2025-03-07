@@ -301,7 +301,10 @@ float APortfolio_3DCharacter::GetHealth() const
 
 float APortfolio_3DCharacter::GetMaxHealth() const
 {
-	return 1000.f; //임시, 나중에 추가해야됨.
+	if (IsValid(AttributeSetVar))
+		return AttributeSetVar->GetMaxHealth();
+	else
+		return 0.f;
 }
 
 void APortfolio_3DCharacter::Die()

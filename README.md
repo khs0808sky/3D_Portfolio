@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/f836a928-b05d-46c0-93d8-552194f47bb2)# DarkSouls
+# DarkSouls
 > **3D Game Portfolio**<br>
 
 ## Play Video Link
@@ -29,11 +29,8 @@
 - ### [MainScreen](#mainscreen)<br>
 - ### [UI](#ui)<br>
 - ### [Player](#player)<br>
-- ### [PlayerMovement](#playermovement)<br>
 - ### [Enemy](#enemy)<br>
-- ### [EnemyMovement](#enemymovement)<br>
-- ### [EnemyKill](#enemykill)<br>
-- ### [GameRule](#gamerule)<br>
+- ### [PlayerAction](#playeraction)<br>
 
 ## MainScreen
 > 비전투 시
@@ -71,7 +68,29 @@
 ![image](https://github.com/user-attachments/assets/37d003f6-3c11-439f-ac86-89bad91dd2ae)
 
 - **락온 시스템 Lock On System**<br>
+> 락온 비활성화 상태<br>
+
+![image](https://github.com/user-attachments/assets/5fa06684-7f4c-4476-a1ce-88ac6e130d5c)
+
+> 락온 활성화 상태<br>
+
+![image](https://github.com/user-attachments/assets/abb9a3f9-1b2e-4d8b-8102-732a86b92e21)
+
 
 - **게임 오버 You Died**<br>
+![image](https://github.com/user-attachments/assets/1504622b-a9ad-4946-ab0e-7db4304db50b)
+
+
 - **게임 클리어 Victory Achieved**<br>
+![image](https://github.com/user-attachments/assets/bbb67761-dac2-4366-ae83-f153d624b5f0)
+
+
+## Player
+![04_Greystone](https://github.com/user-attachments/assets/145211e2-e93b-4fd2-81e7-194a6d0d52cc)
+
+## Enemy
+![05_Khaimera](https://github.com/user-attachments/assets/6757c457-c56f-4f26-ae91-ca0eb6dfd434)
+
+## PlayerAction
+- **공격 Attack**<br>
 

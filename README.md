@@ -86,11 +86,44 @@
 
 
 ## Player
+> 체력 : 500<br>
+
 ![04_Greystone](https://github.com/user-attachments/assets/145211e2-e93b-4fd2-81e7-194a6d0d52cc)
 
 ## Enemy
+> 체력 : 1000<br>
+
 ![05_Khaimera](https://github.com/user-attachments/assets/6757c457-c56f-4f26-ae91-ca0eb6dfd434)
 
 ## PlayerAction
-- **공격 Attack**<br>
+> **리스폰 Respawn**<br>
+
+![06_GreystoneRespawn](https://github.com/user-attachments/assets/de87f1d3-adb6-4a99-b66a-e92621ddf5c6)
+
+> **걷기 Walk**<br>
+
+![07_GreystoneWalk](https://github.com/user-attachments/assets/cc1c383a-40b8-453d-83e2-85b4dbbabdb4)
+
+> **달리기 Run**<br>
+
+![08_GreystoneRun](https://github.com/user-attachments/assets/114ece6c-8674-4c6e-9c64-05432824a01e)
+
+> **점프 Jump**<br>
+
+![09_GreystoneJump](https://github.com/user-attachments/assets/ab351c08-720a-494d-a7d4-eca7e9236aac)
+
+> **공격 Attack**<br>
+
+|N번째 공격|데미지|공격모션|
+|:---:|:---:|:---:|
+|1타|34|![10_GreystoneFirstAttack](https://github.com/user-attachments/assets/b6e77258-a8f1-4004-aa66-609042b05439)| 
+|2타|46|![11_GreystoneSecondAttack](https://github.com/user-attachments/assets/657d2a7e-2951-47eb-98c0-a2329ff01414)|
+|3타|58|![12_GreystoneThirdAttack](https://github.com/user-attachments/assets/7173b837-5641-4f60-ac0e-f25d469b619e)|
+|1~3타|138|![13_GreystoneFullAttack](https://github.com/user-attachments/assets/2e7fc6e0-d75e-4ad5-b1ae-562e005510fc)|
+
+> **구르기 Roll**<br>
+
+> **포션먹기 Heal**<br>
+
+> **쓰러짐 Dead**<br>
 

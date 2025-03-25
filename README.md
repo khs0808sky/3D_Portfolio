@@ -31,6 +31,8 @@
 - ### [Player](#player)<br>
 - ### [Enemy](#enemy)<br>
 - ### [PlayerAction](#playeraction)<br>
+- ### [MonsterAction](#monsteraction)<br>
+- ### [MonsterPatternInfo](#monsterpatterninfo)<br>
 
 ## MainScreen
 > 비전투 시
@@ -114,16 +116,67 @@
 
 > **공격 Attack**<br>
 
-|N번째 공격|데미지|공격모션|
-|:---:|:---:|:---:|
-|1타|34|![10_GreystoneFirstAttack](https://github.com/user-attachments/assets/b6e77258-a8f1-4004-aa66-609042b05439)| 
-|2타|46|![11_GreystoneSecondAttack](https://github.com/user-attachments/assets/657d2a7e-2951-47eb-98c0-a2329ff01414)|
-|3타|58|![12_GreystoneThirdAttack](https://github.com/user-attachments/assets/7173b837-5641-4f60-ac0e-f25d469b619e)|
-|1~3타|138|![13_GreystoneFullAttack](https://github.com/user-attachments/assets/2e7fc6e0-d75e-4ad5-b1ae-562e005510fc)|
+|N번째 공격|타수|데미지|공격모션|
+|:---:|:---:|:---:|:---:|
+|1번째|1|34|![10_GreystoneFirstAttack](https://github.com/user-attachments/assets/b6e77258-a8f1-4004-aa66-609042b05439)| 
+|2번째|1|46|![11_GreystoneSecondAttack](https://github.com/user-attachments/assets/657d2a7e-2951-47eb-98c0-a2329ff01414)|
+|3번째|1|58|![12_GreystoneThirdAttack](https://github.com/user-attachments/assets/7173b837-5641-4f60-ac0e-f25d469b619e)|
+|총합|3|138|![13_GreystoneFullAttack](https://github.com/user-attachments/assets/2e7fc6e0-d75e-4ad5-b1ae-562e005510fc)|
 
 > **구르기 Roll**<br>
 
+![14_GreystoneRoll](https://github.com/user-attachments/assets/5f17a286-fe26-4aca-a9e7-0cf69e91fb12)
+
 > **포션먹기 Heal**<br>
+
+![15_GreystoneHeal](https://github.com/user-attachments/assets/4d2c1322-7c55-42a6-9326-b694d8957d15)
 
 > **쓰러짐 Dead**<br>
 
+![16_GreystoneDead](https://github.com/user-attachments/assets/c6a0d5ea-9167-4c5b-921e-a7e1626008f4)
+
+## MonsterAction
+> **대기 Idle**<br>
+
+![17_MonsterIdle](https://github.com/user-attachments/assets/e0173a84-093f-4417-8c0a-5844fd67e0df)
+
+> **추적 Walk**<br>
+
+![18_MonsterChase](https://github.com/user-attachments/assets/f2bf2206-9789-4886-9d4d-55b7d95ee7c0)
+
+> **일반공격 GeneralAttack**<br>
+
+|N번째 공격|타수|데미지|공격모션|
+|:---:|:---:|:---:|:---:|
+|1번째|1|50|![19_MonsterFirstAttack](https://github.com/user-attachments/assets/f417ae3a-b8ae-4ced-b5f9-f2aed0f675d1)|
+|2번째|1|60|![20_MonsterSecondAttack](https://github.com/user-attachments/assets/12abedf3-1a76-48fb-bf2c-c25971e4d5e1)|
+|3번째|1|75|![21_MonsterThirdAttack](https://github.com/user-attachments/assets/e0202efc-2ae0-4d19-80f4-0c3bbe8293d5)|
+|총합|3|185|![22_MonsterFullAttack](https://github.com/user-attachments/assets/0b0966d4-223f-4aa3-a11c-6032dedb98ca)|
+
+> **진화 Evolution**<br>
+
+![23_MonsterEvolution](https://github.com/user-attachments/assets/3d66859a-ffd6-411f-9e38-b654fdb59776)
+
+> **강화공격 IntensifiedAttack**<br>
+
+|N번째 공격|타수|데미지|공격모션|
+|:---:|:---:|:---:|:---:|
+|1번째|1|100|![24_MonsterFirstHardAttack](https://github.com/user-attachments/assets/19563fce-a22e-478a-a9e8-165bdae417e8)|
+|2번째|1|100|![25_MonsterSecondHardAttack](https://github.com/user-attachments/assets/e0919497-5a70-46a8-a3ea-cc2913847a3c)|
+|3번째|1|100|![26_MonsterThirdHardAttack](https://github.com/user-attachments/assets/0de60e59-d15c-4118-a305-db7ab344db31)|
+|4번째|2|75|![27_MonsterFourthHardAttack](https://github.com/user-attachments/assets/37f72a20-4bb8-40e4-8cb2-f8e4af7427ca)|
+|총합|5|450|![28_MonsterFullHardAttack](https://github.com/user-attachments/assets/2acb1aac-ac75-4a0f-a79b-106fc82e7dd6)|
+
+> **쓰러짐 Dead**<br>
+
+![29_MonsterDead](https://github.com/user-attachments/assets/48a333a7-1cf5-452f-88f2-20078edf68d2)
+
+## MonsterPatternInfo
+- 플레이어가 일정 거리에 들어오기전엔 대기 상태를 유지
+- 플레이어가 일정 거리에 들어올 시 플레이어를 추적함
+- 플레이어를 추적 중 공격사거리 안에 플레이어가 들어올 시 일반공격함
+- 몬스터의 피가 50%이하가 될 시 몬스터가 진화함, 이 진화모션중엔 몬스터가 무적상태가 됨
+- 다시 플레이어를 추적 중 공격사거리 안에 플레이어가 들어오면 강화공격(첫 번째)를 함
+- 첫 번째 공격을 한 뒤, 이후 공격(2, 3, 4번째)들은플레이어의 좌측, 우측중에 랜덤으로 순간이동하여 공격함
+- 만약 좌측, 우측 모두 이동불가능한 구역이라면 전방 혹은 후방으로 순간이동하여 공격함
+- 몬스터의 피가 0%이하가 되면 몬스터가 죽는 모션을 함

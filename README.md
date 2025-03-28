@@ -2,7 +2,7 @@
 > **3D Game Portfolio**<br>
 
 ## Play Video Link
-<링크>
+<https://www.youtube.com/watch?v=Dt12KUzp-WU>
 
 ## PlayRule & GameControl
 - **게임규칙** <br>
